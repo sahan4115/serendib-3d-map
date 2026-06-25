@@ -1,0 +1,97 @@
+/* ============================================================
+   Serendib — design tokens (tropical / Ceylon luxury)
+   ============================================================ */
+:root {
+  --ocean-deep: #07232f;
+  --ocean: #0d3b45;
+  --jungle: #1f4a36;
+  --leaf: #3f7350;
+  --tea: #7ea05a;
+  --sand: #f4ecda;
+  --parchment: #fbf6ea;
+  --ink: #11302b;
+  --gold: #c8932f; /* Ceylon gold / tea */
+  --saffron: #d9802b; /* spice accent */
+  --maroon: #7a2b2b;
+  --white: #fbf7ec;
+  --white-50: rgba(251, 247, 236, 0.5);
+
+  --font-serif: 'Fraunces', Georgia, serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+
+  --ease: cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--ocean-deep);
+  color: var(--white);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+#app,
+#scene {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+#scene {
+  display: block;
+  touch-action: none;
+}
+#ui {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none; /* full-screen layers pass through; widgets opt back in */
+}
+
+::selection {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+/* ---- shared type ---- */
+.eyebrow {
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  letter-spacing: 0.28em;
+  font-weight: 500;
+}
+.display {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  line-height: 1.04;
+  letter-spacing: 0.01em;
+}
+.serif {
+  font-family: var(--font-serif);
+}
+
+/* ---- reveal helper ---- */
+.reveal {
+  opacity: 0;
+  transform: translateY(1.2rem);
+  transition: opacity 1s var(--ease), transform 1s var(--ease);
+}
+.reveal.in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

@@ -1,0 +1,13 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+Serendib-SriLanka-Map.html
+
+# logs / os
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.vite/

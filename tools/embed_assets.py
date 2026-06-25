@@ -15,6 +15,7 @@ FILES = {
     '/terrain/normal.png': 'image/png',
     '/terrain/height.png': 'image/png',
     '/terrain/mask.png':   'image/png',
+    '/terrain/detail.jpg': 'image/jpeg',
     '/models/sigiriya.glb': 'model/gltf-binary',
 }
 for k in ['anuradhapura', 'sigiriya', 'kandy', 'nuwaraeliya', 'ella', 'yala', 'galle', 'mirissa']:

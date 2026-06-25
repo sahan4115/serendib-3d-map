@@ -26,10 +26,11 @@ export class Terrain {
 
     const texLoader = new THREE.TextureLoader(manager)
     const loadTex = (u) => new Promise((res) => texLoader.load(u, res))
-    const [albedo, normal, mask, heightImg] = await Promise.all([
+    const [albedo, normal, mask, detail, heightImg] = await Promise.all([
       loadTex(url('/terrain/albedo.jpg')),
       loadTex(url('/terrain/normal.png')),
       loadTex(url('/terrain/mask.png')),
+      loadTex(url('/terrain/detail.jpg')),
       loadImage(url('/terrain/height.png'), manager),
     ])
 
@@ -42,6 +43,10 @@ export class Terrain {
       t.flipY = true
       t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping
     }
+    // tiling canopy detail (mirror-repeat to soften seams)
+    detail.colorSpace = THREE.SRGBColorSpace
+    detail.wrapS = detail.wrapT = THREE.MirroredRepeatWrapping
+    detail.anisotropy = maxAniso
 
     // The encoded height's R channel ~= 8-bit normalised elevation; sampling
     // it with linear filtering gives smooth mountains (no carry artifacts and
@@ -90,6 +95,31 @@ export class Terrain {
         `#include <begin_vertex>
          float hnorm = texture2D(heightMap, uv).r;
          transformed += objectNormal * (hnorm * heightScale);`
+      )
+
+      // ---- canopy detail overlay: adds fine forest texture up close ----
+      shader.uniforms.uDetailMap = { value: detail }
+      shader.uniforms.uDetailRepeat = { value: 130.0 }
+      shader.uniforms.uDetailStrength = { value: 0.6 }
+      shader.uniforms.uDetailNear = { value: 22.0 }
+      shader.uniforms.uDetailFar = { value: 135.0 }
+      shader.fragmentShader =
+        'uniform sampler2D uDetailMap;\nuniform float uDetailRepeat, uDetailStrength, uDetailNear, uDetailFar;\n' +
+        shader.fragmentShader
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <map_fragment>',
+        `#include <map_fragment>
+         {
+           vec3 baseCol = diffuseColor.rgb;
+           vec3 det = texture2D(uDetailMap, vMapUv * uDetailRepeat).rgb;
+           float detMean = 0.26;
+           float veg = smoothstep(0.015, 0.16, baseCol.g - max(baseCol.r, baseCol.b) * 0.85);
+           float dist = length(vViewPosition);
+           float fade = clamp((uDetailFar - dist) / (uDetailFar - uDetailNear), 0.0, 1.0);
+           float amt = uDetailStrength * veg * fade;
+           vec3 detailed = clamp(baseCol * (det / detMean), 0.0, 1.0);
+           diffuseColor.rgb = mix(baseCol, detailed, amt);
+         }`
       )
       this._shader = shader
     }

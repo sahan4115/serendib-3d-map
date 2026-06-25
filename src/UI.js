@@ -23,7 +23,10 @@ export class UI {
           <span class="brand__name">Serendib</span>
           <span class="brand__sub">THE ISLE OF CEYLON</span>
         </button>
-        <button class="hdr__cta uline" data-inquire>Plan a Journey</button>
+        <div class="hdr__actions">
+          <button class="hdr__cta uline" data-gallery>Gallery</button>
+          <button class="hdr__cta uline" data-inquire>Plan a Journey</button>
+        </div>
       </header>
 
       <section class="hero">
@@ -70,6 +73,26 @@ export class UI {
         </div>
       </aside>
 
+      <div class="gallery" data-gallery-overlay>
+        <button class="gallery__close" data-gallery-close>Close <span>✕</span></button>
+        <div class="gallery__inner">
+          <p class="eyebrow gallery__eyebrow">Crafted in 3D · Blender + Cycles</p>
+          <h2 class="gallery__title display">The Island, Rendered</h2>
+          <div class="gallery__stage">
+            <video class="gallery__media" data-gallery-video src="gallery/turntable.mp4" autoplay loop muted playsinline></video>
+            <img class="gallery__media" data-gallery-img hidden alt="Serendib render" />
+          </div>
+          <div class="gallery__thumbs">
+            <button class="gallery__thumb is-active" data-pick="video"><span class="gallery__play">▶</span>Turntable</button>
+            <button class="gallery__thumb" data-pick="gallery/hero.jpg"><img src="gallery/hero.jpg" alt="" />Highlands</button>
+            <button class="gallery__thumb" data-pick="gallery/island.jpg"><img src="gallery/island.jpg" alt="" />The Island</button>
+            <button class="gallery__thumb" data-pick="gallery/region.jpg"><img src="gallery/region.jpg" alt="" />Forests</button>
+            <button class="gallery__thumb" data-pick="gallery/aerial.jpg"><img src="gallery/aerial.jpg" alt="" />Aerial</button>
+          </div>
+          <p class="gallery__caption">Built in Blender from real elevation, satellite imagery, forest cover and the OpenStreetMap road network — lit and rendered in Cycles on the GPU.</p>
+        </div>
+      </div>
+
       <div class="toast" data-toast></div>
     `
     )
@@ -86,6 +109,15 @@ export class UI {
     this.$('[data-time]').addEventListener('click', () => emit('toggleTime'))
     root.querySelectorAll('[data-inquire]').forEach((b) =>
       b.addEventListener('click', () => this.toast('Our travel desk is being prepared — check back soon.'))
+    )
+    // gallery
+    this.$('[data-gallery]').addEventListener('click', () => this.openGallery())
+    this.$('[data-gallery-close]').addEventListener('click', () => this.closeGallery())
+    this.$('[data-gallery-overlay]').addEventListener('click', (e) => {
+      if (e.target === this.$('[data-gallery-overlay]')) this.closeGallery()
+    })
+    root.querySelectorAll('[data-pick]').forEach((b) =>
+      b.addEventListener('click', () => this.pickGallery(b))
     )
     this.$('.menu__toggle').addEventListener('click', () => this.menu.classList.toggle('open'))
     root.querySelectorAll('[data-go]').forEach((b) =>
@@ -156,5 +188,34 @@ export class UI {
     t.classList.add('show')
     clearTimeout(this._tt)
     this._tt = setTimeout(() => t.classList.remove('show'), 3200)
+  }
+
+  openGallery() {
+    this.root.classList.add('gallery-open')
+    const v = this.$('[data-gallery-video]')
+    if (v && !v.hidden) v.play().catch(() => {})
+  }
+
+  closeGallery() {
+    this.root.classList.remove('gallery-open')
+    const v = this.$('[data-gallery-video]')
+    if (v) v.pause()
+  }
+
+  pickGallery(btn) {
+    this.root.querySelectorAll('[data-pick]').forEach((b) => b.classList.toggle('is-active', b === btn))
+    const v = this.$('[data-gallery-video]')
+    const img = this.$('[data-gallery-img]')
+    const pick = btn.dataset.pick
+    if (pick === 'video') {
+      img.hidden = true
+      v.hidden = false
+      v.play().catch(() => {})
+    } else {
+      v.pause()
+      v.hidden = true
+      img.src = pick
+      img.hidden = false
+    }
   }
 }

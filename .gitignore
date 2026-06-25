@@ -5,6 +5,9 @@ node_modules/
 dist/
 Serendib-SriLanka-Map.html
 
+# Blender working files (28MB .blend etc.) — web only needs public/gallery/
+blender/
+
 # logs / os
 *.log
 npm-debug.log*
